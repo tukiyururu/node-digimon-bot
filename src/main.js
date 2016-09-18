@@ -1,16 +1,9 @@
-import Reference from './digimon-reference';
+import Reference from './reference';
 
-module.exports = () => {
+module.exports = function() {
     const ref = new Reference();
 
-    ref.getDics()
-    .then(() => {
-        ref.search(ref.parseString('メタルグレイモン'));
-        ref.search(ref.parseString('メタルグレイモンウィルス'));
-        ref.search(ref.parseString('メタルグレイモン（ウィルス種）'));
-        ref.search(ref.parseString('メタルグレイモン(ウィルス種)'));
-        ref.search(ref.parseString('メタグレイモン'));
-        ref.search(ref.parseString('メタグレ'));
-    })
+    ref.getDic()
+    .then(() => ref.search(ref.parseStr('メタルグレイモン')))
     .catch(err => console.log(err));
 };
