@@ -32,7 +32,7 @@ class Reference {
     parseStr(str) {
         const ary = str.match(/(.+モン)((?![\(（\:：\+＋]).*|[\(（\:：\+＋].+)/i);
         debug(ary);
-        return ary ? ary.slice(0, 3) : false;
+        return ary ? ary.slice(0, 3) : null;
     }
 
     parseHtml(html) {
@@ -41,7 +41,7 @@ class Reference {
         return $('.fancybox').map((i, el) => {
             let name = $(el).text();
             let href = $(el).attr('href')
-                .match(/cat-digimon-dictionary\/\d{2}-\w?a\/(.+?)\//);
+                            .match(/cat-digimon-dictionary\/\d{2}-\w?a\/(.+?)\//);
 
             return {
                 name: name,
