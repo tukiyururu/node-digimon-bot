@@ -21,8 +21,8 @@ class Reference {
         };
 
         const result = this.dic.filter(mon => {
-            return (mon.name.indexOf(ary[0])) !== 0 ? false
-                 : (ary[1]) ? (mon.name.indexOf(henkan(ary[1])) !== -1)
+            return (mon.name.indexOf(ary[1])) !== 0 ? false
+                 : (ary[2]) ? (mon.name.indexOf(henkan(ary[2])) !== -1)
                  : true;
         });
         debug(result);
@@ -30,10 +30,9 @@ class Reference {
     }
 
     parseStr(str) {
-        const ary = str.match(/(.+?モン)(.*)/i);
-        debug(ary ? ary.slice(0, 3) : ary);
-        if (!ary) return false;
-        return ary.slice(1, 3);
+        const ary = str.match(/(.+モン)((?![\(（\:：\+＋]).*|[\(（\:：\+＋].+)/i);
+        debug(ary);
+        return ary ? ary.slice(0, 3) : false;
     }
 
     parseHtml(html) {

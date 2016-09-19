@@ -9,26 +9,38 @@ describe('デジモン図鑑', function() {
         return ref.getDic();
     });
 
-    describe('検索', function() {
-        it('メタルグレイモン種', function() {
-             const mons = [
+    it('全デジモンの正規表現', function() {
+        for (let dic of ref.dic) {
+            if (dic.name.indexOf('イグドラシル') !== -1) return;
+            assert.equal(dic.name, ref.parseStr(dic.name)[0]);
+        }
+    });
+
+    describe('デジモン図鑑を検索', function() {
+        it('正しい検索をするか', function() {
+             const metalGreymons = [
                 'メタルグレイモン',
                 'メタルグレイモンウィルス',
                 'メタルグレイモン（ウィルス種）',
                 'メタルグレイモン(ウィルス種)',
+                'メタルグレイモンモン',
+                'メタルグレイモン（',
+                'メタルグレイモン(',
                 'メタグレイモン'
-            ].map(function(mon) {
-                return ref.search(ref.parseStr(mon));
+            ].map(function(metalGreymon) {
+                return ref.search(ref.parseStr(metalGreymon));
             });
 
-            for (let mon of mons[0]) {
-                assert.equal(mon.name.indexOf('メタルグレイモン'), 0);
+            for (let metalGreymon of metalGreymons[0]) {
+                assert.equal(metalGreymon.name.indexOf('メタルグレイモン'), 0);
             }
-            for (let monV of mons.slice(1,4)) {
-                assert.lengthOf(monV, 1);
-                assert.equal('メタルグレイモン（ウィルス種）', monV[0].name);
+            for (let metalGreymonV of metalGreymons.slice(1,4)) {
+                assert.lengthOf(metalGreymonV, 1);
+                assert.equal('メタルグレイモン（ウィルス種）', metalGreymonV[0].name);
             }
-            assert(Array.isArray(mons[4]));
+            for (let notMons of metalGreymons.slice(4,metalGreymons.length)) {
+                assert.deepEqual(notMons, []);
+            }
         });
     });
 });
