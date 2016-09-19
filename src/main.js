@@ -1,9 +1,29 @@
+import client from './client';
 import Reference from './reference';
+const debug = require("debug")("bot:stream");
 
 module.exports = function() {
     const ref = new Reference();
+    ref.getDic().then(() => {
+        const repReg = new RegExp(`^@${process.env.SCREEN_NAME}(.*)`, 'i');
 
-    ref.getDic()
-    .then(() => ref.search(ref.parseStr('メタルグレイモン')))
-    .catch(err => console.log(err));
+        client.stream(stream => {
+            stream.on('data', status => {
+                if (!status.text || status.retweeted_status) return;
+                debug(`@${status.user.screen_name}: ${status.text}`);
+
+                let reply = '@botyururu グレイモン'.match(repReg);
+                debug(reply);
+                if (reply) {
+                    let str = reply[1].replace(/[\s　]/g, '');
+                    let mon = ref.parseStr(str);
+                    if (mon) ref.search(mon);
+                }
+            });
+
+            stream.on('error', err => {
+                throw err;
+            });
+        });
+    });
 };

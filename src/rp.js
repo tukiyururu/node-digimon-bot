@@ -10,11 +10,10 @@ module.exports = function(url) {
                 'referer': 'http://digimon.net/'
             }
         }, (err, res, body) => {
-            if (!err && res.statusCode === 200) {
+            if (err) reject(err);
+            if (res.statusCode === 200) {
                 debug(url);
                 resolve(body);
-            } else {
-                reject(err);
             }
         });
     });

@@ -17,7 +17,9 @@
     "babel-preset-es2015": "^6.14.0",
     "cheerio": "^0.22.0",
     "debug": "^2.2.0",
-    "request": "^2.74.0"
+    "dotenv": "^2.0.0",
+    "request": "^2.74.0",
+    "twitter": "^1.4.0"
   },
   "devDependencies": {
     "babel-register": "^6.14.0",
