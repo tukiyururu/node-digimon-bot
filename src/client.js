@@ -21,6 +21,6 @@ export default {
     },
 
     stream: cb => {
-        client.stream('statuses/filter', { track: 'javascript' }, cb);
+        client.stream('user', cb);
     }
 };
