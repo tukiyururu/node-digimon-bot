@@ -12,12 +12,12 @@ module.exports = function() {
                 if (!status.text || status.retweeted_status) return;
                 debug(`@${status.user.screen_name}: ${status.text}`);
 
-                let reply = '@botyururu グレイモン'.match(repReg);
+                let reply = '@botyururu メタルグレイモン'.match(repReg);
                 debug(reply);
-                if (reply) {
-                    let str = reply[1].replace(/[\s　]/g, '');
-                    let mon = ref.parseStr(str);
-                    if (mon) ref.search(mon);
+                if (!reply) return;
+                let digimonsResult = ref.search(reply[1]);
+                if (digimonsResult) {
+
                 }
             });
 

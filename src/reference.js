@@ -5,6 +5,9 @@ const debug = require('debug')('bot:reference');
 class Reference {
     constructor() {
         this.dic = null;
+        this.regexp = new RegExp(
+            '(.+モン)((?![\\(（\\:：\\+＋]).*|[\\(（\\:：\\+＋].+)', 'i'
+        );
     }
 
     getDic() {
@@ -13,26 +16,26 @@ class Reference {
                .then(objs => this.dic = objs);
     }
 
-    search(ary) {
-        const henkan = str => {
-            return str.replace(/[ -~｡-ﾟ]/g, s => {
-                return String.fromCharCode(s.charCodeAt(0) + 0xFEE0);
-            });
-        };
+    search(word) {
+        let result = [];
+        const ary = word.replace(/[\s　]/g, '').match(this.regexp);
+        debug(ary);
 
-        const result = this.dic.filter(mon => {
-            return (mon.name.indexOf(ary[1])) !== 0 ? false
-                 : (ary[2]) ? (mon.name.indexOf(henkan(ary[2])) !== -1)
-                 : true;
-        });
+        if (ary) {
+            result = this.dic.filter(mon => {
+                return (mon.name.indexOf(ary[1])) !== 0 ? false
+                     : (ary[2]) ? (mon.name.indexOf(this.henkan(ary[2])) !== -1)
+                     : true;
+            });
+        }
         debug(result);
         return result;
     }
 
-    parseStr(str) {
-        const ary = str.match(/(.+モン)((?![\(（\:：\+＋]).*|[\(（\:：\+＋].+)/i);
-        debug(ary);
-        return ary ? ary.slice(0, 3) : null;
+    henkan(str) {
+        return str.replace(/[ -~｡-ﾟ]/g, s => {
+            return String.fromCharCode(s.charCodeAt(0) + 0xFEE0);
+        });
     }
 
     parseHtml(html) {
@@ -40,13 +43,15 @@ class Reference {
 
         return $('.fancybox').map((i, el) => {
             let name = $(el).text();
+            if (name.indexOf('イグドラシル') !== -1) return;
             let href = $(el).attr('href')
-                            .match(/cat-digimon-dictionary\/\d{2}-\w?a\/(.+?)\//);
+                            .match(/\/cat-digimon-dictionary\/\d{2}-\w?a\/(.+)\//);
 
             return {
                 name: name,
-                link: 'http://digimon.net/' + href[0],
-                en: href[1]
+                en: href[1],
+                link: `http://digimon.net${href[0]}`,
+                img: `http://digimon.net${href[0]}img-digmon.jpg`,
             };
         }).get();
     }
