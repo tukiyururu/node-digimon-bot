@@ -18,12 +18,10 @@ class Reference {
                .then(objs => this.dic = objs);
     }
 
-    getImg(imgUrl) {
-        return util.rp(imgUrl[0], { encoding: null })
-               .then(res => {
-                    if (res.headers['content-type'] === 'image/jpeg') return res;
-                    return util.rp(imgUrl[1], { encoding: null });
-                });
+    getImg(url) {
+        return util.rp(url)
+               .then(html => url + cheerio.load(html)('.detail_img img').attr('src'))
+               .then(imgUrl => util.rp(imgUrl, { encoding: null }));
     }
 
     referenceTweet(results) {
@@ -31,12 +29,12 @@ class Reference {
 
         co(function *() {
             for (let result of results) {
-                let img = yield self.getImg(result.img);
+                let img = yield self.getImg(result.link);
                 let params = {
                     status: `RT ${result.name} - デジモン図鑑 l デジモンオフィシャルポータルサイト デジモンウェブ ${result.link} #${util.random()}`,
                 };
 
-                yield client.upload(img.body, params)
+                yield client.upload(img, params)
                       .then(client.update);
                 yield util.wait(5000);
             }
@@ -78,8 +76,8 @@ class Reference {
         : word.match(this.regexp);
     }
 
-    parseHtml(res) {
-        const $ = cheerio.load(res.body);
+    parseHtml(html) {
+        const $ = cheerio.load(html);
 
         return $('.fancybox').map((i, el) => {
             let href = $(el).attr('href')
@@ -88,9 +86,7 @@ class Reference {
             return {
                 name: $(el).text(),
                 en: href[1],
-                link: `http://digimon.net${href[0]}`,
-                img: [ `http://digimon.net${href[0]}img-digmon.jpg`,
-                       `http://digimon.net${href[0]}img-digimon.jpg` ]
+                link: `http://digimon.net${href[0]}`
             };
         }).get();
     }

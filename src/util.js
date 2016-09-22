@@ -15,7 +15,7 @@ export default {
                 if (err) reject(err);
                 if (res.statusCode === 200) {
                     debug(url);
-                    resolve(res);
+                    resolve(body);
                 }
             });
         });
