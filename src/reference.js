@@ -1,5 +1,7 @@
 import cheerio from 'cheerio';
-import { rp } from './util';
+import co from 'co';
+import client from './client';
+import util from './util';
 const debug = require('debug')('bot:reference');
 
 class Reference {
@@ -11,9 +13,34 @@ class Reference {
     }
 
     getDic() {
-        return rp('http://digimon.net/reference')
+        return util.rp('http://digimon.net/reference')
                .then(this.parseHtml)
                .then(objs => this.dic = objs);
+    }
+
+    getImg(imgUrl) {
+        return util.rp(imgUrl[0], { encoding: null })
+               .then(res => {
+                    if (res.headers['content-type'] === 'image/jpeg') return res;
+                    return util.rp(imgUrl[1], { encoding: null });
+                });
+    }
+
+    referenceTweet(results) {
+        const self = this;
+
+        co(function *() {
+            for (let result of results) {
+                let img = yield self.getImg(result.img);
+                let params = {
+                    status: `RT ${result.name} - デジモン図鑑 l デジモンオフィシャルポータルサイト デジモンウェブ ${result.link} #${util.random()}`,
+                };
+
+                yield client.upload(img.body, params)
+                      .then(client.update);
+                yield util.wait(5000);
+            }
+        });
     }
 
     search(word) {
@@ -51,8 +78,8 @@ class Reference {
         : word.match(this.regexp);
     }
 
-    parseHtml(html) {
-        const $ = cheerio.load(html);
+    parseHtml(res) {
+        const $ = cheerio.load(res.body);
 
         return $('.fancybox').map((i, el) => {
             let href = $(el).attr('href')
@@ -60,12 +87,13 @@ class Reference {
 
             return {
                 name: $(el).text(),
-                en:    href[1],
+                en: href[1],
                 link: `http://digimon.net${href[0]}`,
-                img:  `http://digimon.net${href[0]}img-digmon.jpg`
+                img: [ `http://digimon.net${href[0]}img-digmon.jpg`,
+                       `http://digimon.net${href[0]}img-digimon.jpg` ]
             };
         }).get();
     }
 }
 
-module.exports = new Reference;
+export default Reference;

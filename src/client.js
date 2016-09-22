@@ -1,4 +1,4 @@
-require('dotenv').config({ silent: true });
+require("dotenv").load({silent: true});
 import Twitter from 'twitter';
 const debug = require('debug')('bot:client');
 
@@ -22,12 +22,13 @@ export default {
         });
     },
 
-    upload: data => {
+    upload: (data, params) => {
         return new Promise((resolve, reject) => {
             client.post('media/upload', { media: data }, (err, media) => {
                 if (err) reject(err);
                 debug(media);
-                resolve(media.media_id_string);
+                params.media_ids = media.media_id_string;
+                resolve(params);
             });
         });
     },

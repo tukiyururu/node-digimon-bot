@@ -4,7 +4,7 @@ const debug = require('debug')('bot:util');
 
 const USER_AGENT = 'Mozilla/5.0 (Windows NT 6.3; WOW64; Trident/7.0; Touch; rv:11.0) like Gecko';
 
-module.exports = {
+export default {
     rp: (url, opt) => {
         return new Promise((resolve, reject) => {
             if (!opt) opt = {};
@@ -12,11 +12,10 @@ module.exports = {
             opt.headers = { 'user-agent': USER_AGENT };
 
             request(opt, (err, res, body) => {
-                if (!err && res.statusCode === 200) {
+                if (err) reject(err);
+                if (res.statusCode === 200) {
                     debug(url);
-                    resolve(body);
-                } else {
-                    reject(err);
+                    resolve(res);
                 }
             });
         });
@@ -24,8 +23,8 @@ module.exports = {
 
     wait: time => {
         return new Promise(resolve => {
+            debug(`wait ${time}ms`);
             setTimeout(() => {
-                debug(`wait ${time}ms`);
                 resolve();
             }, time);
         });
