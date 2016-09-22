@@ -1,6 +1,6 @@
-import Twitter from 'twitter';
 require('dotenv').config({ silent: true });
-const debug = require("debug")("bot:client");
+import Twitter from 'twitter';
+const debug = require('debug')('bot:client');
 
 const client = new Twitter({
     consumer_key:        process.env.CONSUMER_KEY,
@@ -10,17 +10,27 @@ const client = new Twitter({
 });
 
 export default {
+    screenName: process.env.SCREEN_NAME,
+
     update: params => {
         return new Promise((resolve, reject) => {
-            client.post('statuses/update', params, (err, status) => {
+            client.post('statuses/update', params, (err, tweet) => {
                 if (err) reject(err);
-                debug(`@${status.user.screen_name}: ${status.text}`);
-                resolve(status);
+                debug(params);
+                resolve(tweet);
             });
         });
     },
 
-    stream: cb => {
-        client.stream('user', cb);
-    }
+    upload: data => {
+        return new Promise((resolve, reject) => {
+            client.post('media/upload', { media: data }, (err, media) => {
+                if (err) reject(err);
+                debug(media);
+                resolve(media.media_id_string);
+            });
+        });
+    },
+
+    stream: cb => client.stream('user', cb)
 };
