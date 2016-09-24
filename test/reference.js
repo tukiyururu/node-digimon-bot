@@ -1,6 +1,5 @@
 import { assert } from 'chai';
-import Reference from '../src/reference';
-const ref = new Reference();
+import ref from '../src/reference';
 
 before(function() {
     this.timeout(50000);
@@ -61,11 +60,11 @@ describe('デジモン図鑑の検索', function() {
 
     it('図鑑にないデジモンを検索をしないか', function() {
         const notMons = [
-            'メタルグレイモン（',
-            'メタルグレイモン(',
             'メタルグレイモンモン',
             'メタルグレイモンモン（ウィルス種）',
             'メタグレイモン',
+            'メタルグレイモン（',
+            'メタルグレイモン(',
             'イグドラシル＿',
             'イグドラシル＿７Ｄ６Ｆ',
         ];

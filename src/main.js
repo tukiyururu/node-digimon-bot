@@ -1,11 +1,11 @@
 import 'babel-polyfill';
-import Reference from './reference';
+import ref from './reference';
 import client from './client';
 const debug = require('debug')('bot:stream');
 
 module.exports = function() {
-    const ref = new Reference();
     ref.getDic().then(() => {
+        let reply_id;
         const repReg = new RegExp(`^@${client.screenName}(.*)`, 'i');
         debug(repReg);
 

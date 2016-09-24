@@ -25,16 +25,17 @@ class Reference {
     }
 
     referenceTweet(results) {
-        const self = this;
+        debug(results);
 
-        co(function *() {
+        const self = this;
+        return co(function *() {
             for (let result of results) {
                 let img = yield self.getImg(result.link);
                 let params = {
                     status: `RT ${result.name} - デジモン図鑑 l デジモンオフィシャルポータルサイト デジモンウェブ ${result.link} #${util.random()}`,
                 };
 
-                yield client.upload(img, params)
+                let _status = yield client.upload(img, params)
                       .then(client.update);
                 yield util.wait(5000);
             }
@@ -42,19 +43,15 @@ class Reference {
     }
 
     search(word) {
-        let results = [];
         const ary = this.parseWord(word);
         debug(ary);
+        if (!ary) return [];
 
-        if (ary) {
-            results = this.dic.filter(mon => {
-                return (mon.name.indexOf(ary[1]) !== 0) ? false
-                     : (ary[2]) ? (mon.name.indexOf(this.henkan(ary[2])) !== -1)
-                     : true;
-            });
-        }
-        debug(results);
-        return results;
+        return this.dic.filter(mon => {
+            return (mon.name.indexOf(ary[1]) !== 0) ? false
+                 : (ary[2]) ? (mon.name.indexOf(this.henkan(ary[2])) !== -1)
+                 : true;
+        });
     }
 
     henkan(str) {
@@ -64,16 +61,16 @@ class Reference {
     }
 
     parseWord(word) {
-        return word.match(/^イグドラシル(_?7D6|＿?７Ｄ６|)$/i) ?
-            ['イグドラシル＿７Ｄ６', 'イグドラシル＿７Ｄ６', '']
+        const ygg = word.match(/^イグドラシル(_?7D6|＿?７Ｄ６|)$/i);
+        if (ygg) return [ygg[0], 'イグドラシル＿７Ｄ６', ''];
 
-        : word.match(/^メタルグレイモン[\(（]?黄[\)）]?$/) ?
-            ['メタルグレイモン（ワクチン種）', 'メタルグレイモン（ワクチン種）', '（ワクチン種）']
+        const monW = word.match(/^メタルグレイモン[\(（]?黄[\)）]?$/);
+        if (monW) return [monW[0], 'メタルグレイモン（ワクチン種）', ''];
 
-        : word.match(/^メタルグレイモン[\(（]?青[\)）]?$/) ?
-            ['メタルグレイモン（ウィルス種）', 'メタルグレイモン（ウィルス種）', '（ウィルス種）']
+        const monV = word.match(/^メタルグレイモン[\(（]?青[\)）]?$/);
+        if (monV) return [monV[0], 'メタルグレイモン（ウィルス種）', ''];
 
-        : word.match(this.regexp);
+        return word.match(this.regexp);
     }
 
     parseHtml(html) {
@@ -81,15 +78,14 @@ class Reference {
 
         return $('.fancybox').map((i, el) => {
             let href = $(el).attr('href')
-                            .match(/\/cat-digimon-dictionary\/\d{2}-\w?a\/(.+)\//);
+                            .match(/\/cat-digimon-dictionary\/\d{2}-\w?a\/.+\//);
 
             return {
                 name: $(el).text(),
-                en: href[1],
                 link: `http://digimon.net${href[0]}`
             };
         }).get();
     }
 }
 
-export default Reference;
+module.exports = new Reference;
