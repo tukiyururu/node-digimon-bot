@@ -5,7 +5,6 @@ const debug = require('debug')('bot:stream');
 
 module.exports = function() {
     ref.getDic().then(() => {
-        let reply_id;
         const repReg = new RegExp(`^@${client.screenName}(.*)`, 'i');
         debug(repReg);
 

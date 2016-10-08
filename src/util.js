@@ -1,4 +1,3 @@
-require('dotenv').config({ silent: true });
 import request from 'request';
 const debug = require('debug')('bot:util');
 
