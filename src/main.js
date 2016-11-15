@@ -1,31 +1,25 @@
-import 'babel-polyfill';
-import ref from './reference';
-import client from './client';
-const debug = require('debug')('bot:stream');
+import "babel-polyfill";
+import Search from "./search";
+import client from "./client";
 
-module.exports = function() {
-    ref.getDic().then(() => {
-        const repReg = new RegExp(`^@${client.screenName}(.*)`, 'i');
-        debug(repReg);
+(async () => {
+    await Search.set();
+    const reg = new RegExp(`^@${client.name}[\\s　](\/w|)(?:[\\s　]){0,1}([^\\s　]+)`, "i");
 
-        client.stream(stream => {
-            stream.on('error', err => {
-                throw err;
-            });
+    client.stream(status => {
+        if (!status.text || status.retweeted_status) return;
+        const reply = status.text.match(reg);
 
-            stream.on('data', status => {
-                if (!status.text || status.retweeted_status) return;
-                debug(`@${status.user.screen_name}: ${status.text}`);
+        if (!reply) return;
+        const digimon = Search.get(reply);
 
-                const reply = status.text.match(repReg);
-                debug(reply);
-                if (!reply) return;
-
-                const _reply = reply[1].replace(/[\s　]/g, '');
-                const refResults = ref.search(_reply);
-                if (refResults.length > 0) ref.referenceTweet(refResults);
-            });
-        });
-    })
-    .catch(err => console.log(err));
-};
+        if(!digimon) return;
+        (async () => {
+            const data = await digimon.img();
+            await client.update({ status: digimon.tweet }, data);
+            await client.wait();
+        })()
+        .catch(console.log);
+    });
+})()
+.catch(console.log);
