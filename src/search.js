@@ -1,16 +1,16 @@
 import Reference from "./reference";
 import Wikimon from "./wikimon";
-import rp from "./rp";
+import util from "./util";
 
 class Search {
     constructor() {
-        this.ref  = null;
-        this.wiki = null;
+        this.ref  = [];
+        this.wiki = [];
     }
 
     async set() {
-        const ref  = await rp("http://digimon.net/reference/");
-        const wiki = await rp("http://wikimon.net/List_of_Digimon");
+        const ref  = await util.rp("http://digimon.net/reference/");
+        const wiki = await util.rp("http://wikimon.net/List_of_Digimon");
 
         this.ref  = Reference.parse(ref);
         this.wiki = Wikimon.parse(wiki);
@@ -18,25 +18,19 @@ class Search {
 
     get(words) {
         let result = [];
-        const text = this.zenaku(words[2]);
+        const text = words[2].zenkaku();
 
         if (words[1] !== "/w") {
             result = this.search(this.ref, text);
         }
-        if (!result.length) {
+        if (result.isEmpty()) {
             result = this.search(this.wiki, text);
         }
-        return (result.length) ? result[0] : null;
+        return (result.isEmpty()) ? null : result[0];
     }
 
     search(obj, name) {
-        return obj.filter(mon => (mon.name === name));
-    }
-
-    zenaku(str) {
-        return str.replace(/[ -~｡-ﾟ]/g, s => {
-            return String.fromCharCode(s.charCodeAt(0) + 0xFEE0);
-        });
+        return obj.filter((mon) => (mon.name === name));
     }
 }
 

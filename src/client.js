@@ -17,23 +17,21 @@ export default {
                 if (err) reject(err);
                 params.media_ids = media.media_id_string;
 
-                client.post("statuses/update", params, (err, tweet) => {
+                client.post("statuses/update", params, (err) => {
                     if (err) reject(err);
-                    resolve(tweet);
                 });
             });
         });
     },
 
     stream: cb => {
-        client.stream("user", stream => {
-            stream.on("data", cb);
-        });
-    },
-
-    wait: () => {
-        return new Promise(resolve => {
-            setTimeout(() => resolve(), 5000);
+        client.stream("user", (stream) => {
+            stream.on("data", (status) => {
+                if (status.text && !status.retweeted_status) {
+                    cb(status.text);
+                }
+            });
+            stream.on("error", console.log);
         });
     }
 };

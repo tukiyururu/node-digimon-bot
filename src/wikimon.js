@@ -1,13 +1,13 @@
 import cheerio from "cheerio";
-import rp from "./rp";
+import util from "./util";
 
 class Wikimon {
     async image(url) {
-        const data = await rp(url);
+        const data = await util.rp(url);
         const $ = cheerio.load(data);
         const imgUrl = "http://wikimon.net" +
                        $("#StatsBoxMorphContent1 .floatnone img").attr("src");
-        const img = await rp(imgUrl, { encoding: null });
+        const img = await util.rp(imgUrl, { encoding: null });
 
         return img;
     }
@@ -24,7 +24,7 @@ class Wikimon {
             const link = `http://wikimon.net${a.attr("href")}`;
 
             return {
-                name: name.replace(/\s/g, ""),
+                name: name.exclude(),
                 img: () => this.image(link),
                 tweet: `RT ${a.text()} - Wikimon - The #1 Digimon wiki ${link}`
             };

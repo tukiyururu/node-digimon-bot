@@ -1,12 +1,12 @@
 import cheerio from "cheerio";
-import rp from "./rp";
+import util from "./util";
 
 class Reference {
     async image(url) {
-        const data = await rp(url);
+        const data = await util.rp(url);
         const $ = cheerio.load(data);
         const imgUrl = url + $(".detail_img img").attr("src");
-        const img = await rp(imgUrl, { encoding: null });
+        const img = await util.rp(imgUrl, { encoding: null });
 
         return img;
     }
@@ -15,9 +15,8 @@ class Reference {
         const $ = cheerio.load(html);
 
         return $(".fancybox").map((i, el) => {
-            const name = $(el).text();
-            const href = $(el).attr("href")
-                              .match(/\/cat-digimon-dictionary\/\d{2}-\w?a\/.+\//)[0];
+            const name = $(el).text().exclude();
+            const href = $(el).attr("href").replace(/\.\.|index\.html/g, "");
             const link = `http://digimon.net${href}`;
 
             return {
